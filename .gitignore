@@ -1,3 +1,4 @@
 build
 *.z64
-sc64deployer.exe
+compile_commands.json
+
