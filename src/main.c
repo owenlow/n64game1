@@ -1,53 +1,120 @@
 #include <libdragon.h>
-#include <stdio.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/gl_integration.h>
+
+void render_triangle(GLfloat r, GLfloat g, GLfloat b)
+{
+    // Begin OpenGL compatibility with the RDP
+    gl_context_begin();
+
+    // Set the camera's position
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(
+        0, -10.0, 0.0,
+        0, 0, 0,
+        0, 0, 1);
+
+    // Draw the triangle
+    glBegin(GL_TRIANGLES);
+    glColor3f(r, g, b); // Red color
+    glVertex3f(-1.0f, -1.0f, -1.0f);
+    glVertex3f(-1.0f, -1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 1.0f);
+    glEnd();
+
+    // Does nothing for now, but keep it in case
+    gl_context_end();
+}
+
+// TODO: didn't fix the "looping" color problem
+GLfloat clamp_color(GLfloat value)
+{
+    if (value < 0.0f)
+        return 0.0f;
+    if (value > 1.0f)
+        return 1.0f;
+    return value;
+}
 
 int main(void)
 {
-    /* Initialize peripherals */
-    display_init(RESOLUTION_320x240, DEPTH_32_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE);
-
-    console_init();
-    console_set_render_mode(RENDER_MANUAL);
+    // Initialise the various systems
+    display_init(RESOLUTION_640x480, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DISABLED);
+    rdpq_init();
+    gl_init();
     joypad_init();
 
-    /* USB debug output (works great with the SC64's USB debug bridge) */
-    debug_init_isviewer();
-    debug_init_usblog();
-    debugf("Hello from the N64 over USB!\n");
+    // Setup
+    float aspect_ratio = (float)display_get_width() / (float)display_get_height();
+    float near_plane = 1.0f;
+    float far_plane = 50.0f;
 
-    int frame = 0;
+    // Set the viewing area
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(
+        -near_plane * aspect_ratio,
+        near_plane * aspect_ratio,
+        -near_plane,
+        near_plane,
+        near_plane,
+        far_plane);
 
+    GLfloat r = 0.0f;
+    GLfloat g = 0.0f;
+    GLfloat b = 0.0f;
+
+    // Main loop
     while (1)
     {
-        console_clear();
 
-        printf("Hello, World!\n");
-        printf("Running on libdragon + SC64\n");
-        printf("\n");
-        printf("Frame: %d\n", frame++);
+        joypad_poll();
+        joypad_buttons_t buttons = joypad_get_buttons(JOYPAD_PORT_1);
+        if (buttons.a)
+        {
+            if (buttons.z)
+                b -= 0.01f;
 
-        console_render();
-        /* Grab the next back-buffer */
-        // surface_t *disp = display_get();
+            else
+                b += 0.01f;
+        }
+        if (buttons.b)
+        {
+            if (buttons.z)
+                g -= 0.01f;
 
-        // /* Clear to a dark blue */
-        // graphics_fill_screen(disp, graphics_make_color(0x10, 0x20, 0x40, 0xFF));
+            else
+                g += 0.01f;
+        }
+        if (buttons.start)
+        {
+            if (buttons.z)
+                r -= 0.01f;
 
-        // /* Draw white text on transparent background */
-        // graphics_set_color(graphics_make_color(0xFF, 0xFF, 0xFF, 0xFF),
-        //                    graphics_make_color(0x00, 0x00, 0x00, 0x00));
-        // graphics_draw_text(disp, 110, 112, "Hello, World!");
-        // graphics_draw_text(disp, 80, 130, "Running on libdragon + SC64");
+            else
+                r += 0.01f;
+        }
+        clamp_color(r);
+        clamp_color(g);
+        clamp_color(b);
 
-        // /* Optional: react to Start being pressed so we know input works */
-        // joypad_poll();
-        // joypad_buttons_t btn = joypad_get_buttons_pressed(JOYPAD_PORT_1);
-        // if (btn.start)
-        // {
-        //     debugf("Start pressed!\n");
-        // }
+        // Start a new frame
+        // Get the frame buffer and z-buffer
+        surface_t *disp = display_get();
+        surface_t *zbuf = display_get_zbuf();
+        // Attach the buffers to the RDP
+        rdpq_attach_clear(disp, zbuf);
 
-        // /* Flip the buffer */
-        // display_show(disp);
+        // Fill the background with white
+        rdpq_set_mode_fill(RGBA32(0xFF, 0xFF, 0xFF, 0));
+        rdpq_fill_rectangle(0, 0, display_get_width(), display_get_height());
+
+        // Render a triangle with OpenGL using the function above
+        render_triangle(r, g, b);
+
+        // Send frame buffer to display (TV)
+        rdpq_detach_show();
     }
 }
