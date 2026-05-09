@@ -16,6 +16,11 @@ $(BUILD_DIR)/hello.elf: $(OBJS)
 clean:
 	rm -rf $(BUILD_DIR) hello.z64
 
+upload: all
+	sc64deployer.exe upload hello.z64 --reboot
+
+dev: clean upload
+
 -include $(wildcard $(BUILD_DIR)/*.d)
 
-.PHONY: all clean
+.PHONY: all clean upload dev
