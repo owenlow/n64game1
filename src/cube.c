@@ -3,6 +3,7 @@
 #include <GL/glu.h>
 #include <GL/gl_integration.h>
 #include "game.h"
+#include "camera.h"
 
 void render_cube(Camera camera, GLfloat r, GLfloat g, GLfloat b)
 {

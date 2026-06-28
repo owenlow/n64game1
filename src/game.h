@@ -1,4 +1,5 @@
-
+#ifndef GAME_H
+#define GAME_H
 
 typedef struct Player
 {
@@ -17,3 +18,5 @@ typedef struct Game
     Camera camera;
     Player player;
 } Game;
+
+#endif
