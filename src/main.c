@@ -2,31 +2,11 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/gl_integration.h>
+#include "game.h"
+#include "cube.h"
 
-void render_triangle(GLfloat r, GLfloat g, GLfloat b)
-{
-    // Begin OpenGL compatibility with the RDP
-    gl_context_begin();
-
-    // Set the camera's position
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(
-        0, -10.0, 0.0,
-        0, 0, 0,
-        0, 0, 1);
-
-    // Draw the triangle
-    glBegin(GL_TRIANGLES);
-    glColor3f(r, g, b); // Red color
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glEnd();
-
-    // Does nothing for now, but keep it in case
-    gl_context_end();
-}
+// void handle_controls(void){
+//     fm_vec3_t}
 
 // TODO: didn't fix the "looping" color problem
 GLfloat clamp_color(GLfloat value)
@@ -47,7 +27,7 @@ int main(void)
     joypad_init();
 
     // Setup
-    float aspect_ratio = (float)display_get_width() / (float)display_get_height();
+    float aspect_ratio = (float)display_get_width() / (float)display_get_height(); // 4/3
     float near_plane = 1.0f;
     float far_plane = 50.0f;
 
@@ -55,8 +35,8 @@ int main(void)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(
-        -near_plane * aspect_ratio,
-        near_plane * aspect_ratio,
+        -near_plane * aspect_ratio, // -1.33
+        near_plane * aspect_ratio,  //
         -near_plane,
         near_plane,
         near_plane,
@@ -65,6 +45,8 @@ int main(void)
     GLfloat r = 0.0f;
     GLfloat g = 0.0f;
     GLfloat b = 0.0f;
+    // glRotatef
+    // gluLookAt
 
     // Main loop
     while (1)
@@ -100,6 +82,13 @@ int main(void)
         clamp_color(g);
         clamp_color(b);
 
+        // int x = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_X);
+        // int y = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_Y);
+        // if (y)
+        // {
+        //     gluLookAt()
+        // }
+
         // Start a new frame
         // Get the frame buffer and z-buffer
         surface_t *disp = display_get();
@@ -112,7 +101,7 @@ int main(void)
         rdpq_fill_rectangle(0, 0, display_get_width(), display_get_height());
 
         // Render a triangle with OpenGL using the function above
-        render_triangle(r, g, b);
+        render_cube(r, g, b);
 
         // Send frame buffer to display (TV)
         rdpq_detach_show();
