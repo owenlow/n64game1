@@ -10,7 +10,7 @@ N64_ROM_TITLE = "Hello World"
 
 vpath %.h $(SRC_DIR)
 vpath %.c $(SRC_DIR)
-OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/cube.o
+OBJS = $(BUILD_DIR)/*.o
 
 all: hello.z64
 

@@ -2,8 +2,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/gl_integration.h>
+#include "game.h"
 
-void render_cube(GLfloat r, GLfloat g, GLfloat b)
+void render_cube(Camera camera, GLfloat r, GLfloat g, GLfloat b)
 {
     // Begin OpenGL compatibility with the RDP
     gl_context_begin();

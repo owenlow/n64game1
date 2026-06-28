@@ -18,6 +18,9 @@ GLfloat clamp_color(GLfloat value)
     return value;
 }
 
+Camera camera = {.position = {{0, 0, 0}}, .pitch = 0, .yaw = 0};
+// Player player;
+
 int main(void)
 {
     // Initialise the various systems
@@ -30,6 +33,7 @@ int main(void)
     float aspect_ratio = (float)display_get_width() / (float)display_get_height(); // 4/3
     float near_plane = 1.0f;
     float far_plane = 50.0f;
+    // camera.position = {}
 
     // Set the viewing area
     glMatrixMode(GL_PROJECTION);
@@ -82,6 +86,10 @@ int main(void)
         clamp_color(g);
         clamp_color(b);
 
+        // int x_stick_value = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_X);
+
+        // camera.position =
+
         // int x = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_X);
         // int y = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_Y);
         // if (y)
@@ -101,7 +109,7 @@ int main(void)
         rdpq_fill_rectangle(0, 0, display_get_width(), display_get_height());
 
         // Render a triangle with OpenGL using the function above
-        render_cube(r, g, b);
+        render_cube(camera, r, g, b);
 
         // Send frame buffer to display (TV)
         rdpq_detach_show();

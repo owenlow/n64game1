@@ -1,4 +1,5 @@
 build
 *.z64
+*.pak
 compile_commands.json
 
