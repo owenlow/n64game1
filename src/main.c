@@ -18,16 +18,22 @@ GLfloat clamp_color(GLfloat value)
     return value;
 }
 
-Camera camera = {.position = {{0, 0, 0}}, .pitch = 0, .yaw = 0};
 // Player player;
 
 int main(void)
 {
+    uint32_t frame_count = 0;
+    Camera camera = {
+        .position = {{0, -10, 0}},
+        .pitch = 0,
+        .yaw = 0};
+
     // Initialise the various systems
     display_init(RESOLUTION_640x480, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DISABLED);
     rdpq_init();
     gl_init();
     joypad_init();
+    console_init();
 
     // Setup
     float aspect_ratio = (float)display_get_width() / (float)display_get_height(); // 4/3
@@ -51,11 +57,18 @@ int main(void)
     GLfloat b = 0.0f;
     // glRotatef
     // gluLookAt
-
+    uint64_t last = timer_ticks();
     // Main loop
     while (1)
     {
+        uint64_t now = timer_ticks();
 
+        if (now - last < TICKS_PER_SECOND / 60)
+            continue;
+
+        last = now;
+        // vi_wait_vblank();
+        // printf("hello!\n");
         joypad_poll();
         joypad_buttons_t buttons = joypad_get_buttons(JOYPAD_PORT_1);
         if (buttons.a)
@@ -86,16 +99,17 @@ int main(void)
         clamp_color(g);
         clamp_color(b);
 
-        // int x_stick_value = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_X);
+        int x_stick_value = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_Y);
 
-        // camera.position =
-
+        camera.position.y += x_stick_value;
+        fm_vec3_t pos = camera.position;
         // int x = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_X);
         // int y = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_Y);
         // if (y)
         // {
         //     gluLookAt()
         // }
+        // printf("pos: %f, %f, %f\n", pos.x, pos.y, pos.z);
 
         // Start a new frame
         // Get the frame buffer and z-buffer
@@ -109,9 +123,10 @@ int main(void)
         rdpq_fill_rectangle(0, 0, display_get_width(), display_get_height());
 
         // Render a triangle with OpenGL using the function above
-        render_cube(camera, r, g, b);
+        render_cube(&camera, r, g, b);
 
         // Send frame buffer to display (TV)
         rdpq_detach_show();
+        frame_count++;
     }
 }

@@ -3,6 +3,6 @@
 
 #include "game.h"
 
-void calculateCenter(Camera camera, fm_vec3_t *center);
+fm_vec3_t calculateCenter(Camera *camera);
 
 #endif
