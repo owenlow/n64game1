@@ -2,7 +2,6 @@
 #include <GL/gl.h>
 // #include <GL/>
 #include "camera.h"
-#include "game.h"
 
 fm_vec3_t calculateCenter(Camera *camera)
 {

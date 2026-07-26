@@ -1,6 +1,7 @@
+ROM_NAME = game1
 SOURCE_DIR = src
 BUILD_DIR = build
-N64_ROM_TITLE = "Hello World"
+N64_ROM_TITLE = "Game1!"
 # N64_MKDFS_ROOT = filesystem
 # N64_ROM_REGIONFREE = 1
 # N64_ROM_ELFCOMPRESS = 1
@@ -13,9 +14,7 @@ include $(N64_INST)/include/n64.mk
 # Path to Ares emulator on Windows
 ARES_PATH ?= /mnt/c/Users/Gwen/Downloads/ares-v147/ares.exe
 
-ROM_NAME = game1
-
-SRCS = $(wildcard $(SOURCE_DIR)/*.c)
+SRCS = $(shell find $(SOURCE_DIR) -name '*.c')
 OBJS = $(SRCS:$(SOURCE_DIR)/%.c=$(BUILD_DIR)/%.o)
 
 all: $(ROM_NAME).z64
@@ -35,6 +34,6 @@ dev: clean upload
 ares: all
 	$(ARES_PATH) "$$(wslpath -w $(ROM_NAME).z64)"
 
--include $(wildcard $(BUILD_DIR)/*.d)
+-include $(shell find $(BUILD_DIR) -name '*.d' 2>/dev/null)
 
 .PHONY: all clean upload dev ares

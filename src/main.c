@@ -2,8 +2,11 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/gl_integration.h>
-#include "game.h"
-#include "cube.h"
+
+#include "objects/cube.h"
+#include "input.h"
+#include "game/camera.h"
+#include "game/player.h"
 
 // void handle_controls(void){
 //     fm_vec3_t}
@@ -27,6 +30,9 @@ int main(void)
         .position = {{0, -10, 0}},
         .pitch = 0,
         .yaw = 0};
+
+    Player player = {
+        .position = {{0, -10, 0}}};
 
     // Initialise the various systems
     display_init(RESOLUTION_640x480, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DISABLED);
@@ -55,9 +61,22 @@ int main(void)
     GLfloat r = 0.0f;
     GLfloat g = 0.0f;
     GLfloat b = 0.0f;
+
     // glRotatef
-    // gluLookAt
     uint64_t last = timer_ticks();
+
+    // while (running)
+    // {
+    //     input_update();
+
+    //     game_update(dt);
+
+    //     renderer_begin_frame();
+
+    //     renderer_render_scene(&game.scene);
+
+    //     renderer_end_frame();
+    // }
     // Main loop
     while (1)
     {
@@ -70,6 +89,7 @@ int main(void)
         // vi_wait_vblank();
         // printf("hello!\n");
         joypad_poll();
+        handleInput(&camera, &player);
         joypad_buttons_t buttons = joypad_get_buttons(JOYPAD_PORT_1);
         if (buttons.a)
         {
@@ -99,17 +119,12 @@ int main(void)
         clamp_color(g);
         clamp_color(b);
 
-        int x_stick_value = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_Y);
-
-        camera.position.y += x_stick_value;
-        fm_vec3_t pos = camera.position;
         // int x = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_X);
         // int y = joypad_get_axis_held(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_Y);
         // if (y)
         // {
         //     gluLookAt()
         // }
-        // printf("pos: %f, %f, %f\n", pos.x, pos.y, pos.z);
 
         // Start a new frame
         // Get the frame buffer and z-buffer
@@ -122,8 +137,26 @@ int main(void)
         rdpq_set_mode_fill(RGBA32(0xFF, 0xFF, 0xFF, 0));
         rdpq_fill_rectangle(0, 0, display_get_width(), display_get_height());
 
+        // Begin OpenGL compatibility with the RDP
+        gl_context_begin();
+
+        fm_vec3_t pos = camera.position;
+        fm_vec3_t center = calculateCenter(&camera);
+        fm_vec3_t up = {{0.0f, 0.0f, 1.0f}};
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        gluLookAt(
+            pos.x, pos.y, pos.z,
+            center.x, center.y, center.z,
+            up.x, up.y, up.z);
+
         // Render a triangle with OpenGL using the function above
-        render_cube(&camera, r, g, b);
+        render_cube(&camera, &player, r, g, b);
+
+        // Does nothing for now, but keep it in case
+        gl_context_end();
 
         // Send frame buffer to display (TV)
         rdpq_detach_show();
