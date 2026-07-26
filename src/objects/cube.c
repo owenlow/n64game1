@@ -2,21 +2,28 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/gl_integration.h>
+#include <stdlib.h>
 
 #include "cube.h"
 #include "../game/camera.h"
 #include "../game/player.h"
+#include "../renderer/mesh.h"
 
 // uint32_t frame_count = 0;
 
-void render_cube(Camera *camera, Player *player, GLfloat r, GLfloat g, GLfloat b)
+Object *init_cube(GLfloat r, GLfloat g, GLfloat b)
 {
 
-    // Draw the triangle
-    glBegin(GL_TRIANGLES);
-    glColor3f(r, g, b); // Red color
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glEnd();
+    Object *result = malloc(sizeof(*result));
+    Mesh *mesh = malloc(sizeof(*mesh));
+
+    mesh->vertex_count = 3; // TODO: fix!
+    mesh->vertices = malloc(mesh->vertex_count * sizeof(*mesh->vertices));
+    mesh->vertices[0] = (fm_vec3_t){{-1.0f, -1.0f, -1.0f}};
+    mesh->vertices[1] = (fm_vec3_t){{-1.0f, -1.0f, 1.0f}};
+    mesh->vertices[2] = (fm_vec3_t){{1.0f, -1.0f, 1.0f}};
+
+    result->mesh = mesh;
+
+    return result;
 }

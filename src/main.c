@@ -7,9 +7,8 @@
 #include "input.h"
 #include "game/camera.h"
 #include "game/player.h"
-
-// void handle_controls(void){
-//     fm_vec3_t}
+#include "game/scene.h"
+#include "game/object.h"
 
 // TODO: didn't fix the "looping" color problem
 GLfloat clamp_color(GLfloat value)
@@ -21,8 +20,6 @@ GLfloat clamp_color(GLfloat value)
     return value;
 }
 
-// Player player;
-
 int main(void)
 {
     uint32_t frame_count = 0;
@@ -33,6 +30,9 @@ int main(void)
 
     Player player = {
         .position = {{0, -10, 0}}};
+
+    Scene scene;
+    scene_init(&scene);
 
     // Initialise the various systems
     display_init(RESOLUTION_640x480, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DISABLED);
@@ -61,6 +61,9 @@ int main(void)
     GLfloat r = 0.0f;
     GLfloat g = 0.0f;
     GLfloat b = 0.0f;
+
+    Object *cube = init_cube(r, g, b);
+    scene_add_object(&scene, cube);
 
     // glRotatef
     uint64_t last = timer_ticks();
@@ -153,7 +156,8 @@ int main(void)
             up.x, up.y, up.z);
 
         // Render a triangle with OpenGL using the function above
-        render_cube(&camera, &player, r, g, b);
+        scene_render(&scene);
+        // render_cube(&camera, &player, r, g, b);
 
         // Does nothing for now, but keep it in case
         gl_context_end();
